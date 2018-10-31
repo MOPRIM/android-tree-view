@@ -38,7 +38,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 
-
 /**
  * Created by mineraud on 03/01/17.
  * The tree view widget intend to visually represent tree views
@@ -177,10 +176,10 @@ public class TreeView extends View implements TreeAdapter.TreeNodeChangeListener
             if (addShadow) {
                 setRadialShadow(shadowOffset);
             }
-            makeDrawableTreeNodes(adapter.getRootNodes(), 0, 360);
+            makeDrawableTreeNodes(adapter.getRootNodes(), 0, 360, -1);
         } else {
             // While the rectangular view uses percentages
-            makeDrawableTreeNodes(adapter.getRootNodes(), 0, 100);
+            makeDrawableTreeNodes(adapter.getRootNodes(), 0, 100, -1);
         }
         // then invalidate and finally request layout
         invalidate();
@@ -390,15 +389,12 @@ public class TreeView extends View implements TreeAdapter.TreeNodeChangeListener
                     Path.Direction.CCW);
             shadowPath.close();
         }
-        else {
-            Log.w(TAG, "Current version of the TreeView does not support shadows");
-        }
 
         //noinspection SuspiciousNameCombination
         shadowPaint.setStrokeWidth(calculatedLayerHeight + offset);
     }
 
-    private void makeDrawableTreeNodes(List<TreeNode> nodes, float parentStart, float parentSweep) {
+    private void makeDrawableTreeNodes(List<TreeNode> nodes, float parentStart, float parentSweep, double parentWeight) {
         float totalWeight = 0;
         int depth = -1;
         int nonZeroNodeCounter = 0;
@@ -411,6 +407,13 @@ public class TreeView extends View implements TreeAdapter.TreeNodeChangeListener
                 depth = node.getDepth();
             } else if (depth != node.getDepth()) {
                 Log.e(TAG, "The depth of the nodes are not all equal");
+            }
+        }
+        if (parentWeight > 0) {
+            if (parentWeight < totalWeight) {
+                Log.w(TAG, "Given weight is smaller than total weight, dismissed");
+            } else {
+                totalWeight = (float) parentWeight;
             }
         }
         float realParentSweep = parentSweep;
@@ -434,9 +437,9 @@ public class TreeView extends View implements TreeAdapter.TreeNodeChangeListener
                         nodeStart += 1;  // Adding some offset to separate the drawables
                     }
                     nodeSweep = ((float) node.getWeight() / totalWeight) * parentSweep;
-                    if (depth > 1 && nonZeroWeightIndex == nonZeroNodeCounter - 1) {
-                        nodeSweep = parentStart + realParentSweep - nodeStart;
-                    }
+//                    if (depth > 1 && nonZeroWeightIndex == nonZeroNodeCounter - 1) {
+//                        nodeSweep = parentStart + realParentSweep - nodeStart;
+//                    }
                     nonZeroWeightIndex++;
                 }
                 // FIXME, dirty fix because the maximum sweep is 360 degrees
@@ -448,7 +451,7 @@ public class TreeView extends View implements TreeAdapter.TreeNodeChangeListener
                         node.getColorResId(), node.getIconResId(), 0.75f * this.calculatedLayerHeight, this.colorIcons));
                 // Log.d(TAG, String.format(Locale.ENGLISH, "%s (%d, %.1f, %.1f) as weight %.2f", node.getPath(), node.getDepth(), nodeStart, nodeSweep, node.getWeight()));
                 if (node.getChildren().size() > 0) {
-                    makeDrawableTreeNodes(node.getChildren(), nodeStart, nodeSweep);
+                    makeDrawableTreeNodes(node.getChildren(), nodeStart, nodeSweep, node.getWeight());
                 }
                 nodeStart += nodeSweep;
             } else {
@@ -477,10 +480,10 @@ public class TreeView extends View implements TreeAdapter.TreeNodeChangeListener
             }
             if (isRadialView()) {
                 // The radial view is over 360 degrees
-                updateDrawableTreeNodes(adapter.getRootNodes(), 0, 360);
+                updateDrawableTreeNodes(adapter.getRootNodes(), 0, 360, -1);
             } else {
                 // While the rectangular view uses percentages
-                updateDrawableTreeNodes(adapter.getRootNodes(), 0, 100);
+                updateDrawableTreeNodes(adapter.getRootNodes(), 0, 100, -1);
             }
             if (doAnimate) {
                 this.animatorSet.playTogether(this.animators);
@@ -491,7 +494,7 @@ public class TreeView extends View implements TreeAdapter.TreeNodeChangeListener
         }
     }
 
-    private void updateDrawableTreeNodes(List<TreeNode> nodes, float parentStart, float parentSweep) {
+    private void updateDrawableTreeNodes(List<TreeNode> nodes, float parentStart, float parentSweep, double parentWeight) {
         float totalWeight = 0;
         int depth = -1;
         int nonZeroNodeCounter = 0;
@@ -506,6 +509,20 @@ public class TreeView extends View implements TreeAdapter.TreeNodeChangeListener
                 Log.e(TAG, "The depth of the nodes are not all equal");
             }
         }
+
+        // Log.d(TAG, "Parent weight: " + parentWeight);
+        // Log.d(TAG, "Total weight: " + totalWeight);
+        if (parentWeight > 0) {
+            if (parentWeight < totalWeight) {
+                Log.w(TAG, "Given weight is smaller than total weight, dismissed");
+            } else {
+                totalWeight = (float) parentWeight;
+            }
+        }
+
+        // Log.d(TAG, "Total weight: " + totalWeight);
+
+
         // Log.d(TAG, "Total weight: " + totalWeight);
         float realParentSweep = parentSweep;
         float nodeStart = parentStart;
@@ -524,9 +541,9 @@ public class TreeView extends View implements TreeAdapter.TreeNodeChangeListener
                         nodeStart += 1;  // Adding some offset to separate the drawables
                     }
                     nodeSweep = ((float) node.getWeight() / totalWeight) * parentSweep;
-                    if (depth > 1 && nonZeroWeightIndex == nonZeroNodeCounter - 1) {
-                        nodeSweep = parentStart + realParentSweep - nodeStart;
-                    }
+//                    if (depth > 1 && nonZeroWeightIndex == nonZeroNodeCounter - 1) {
+//                        nodeSweep = parentStart + realParentSweep - nodeStart;
+//                    }
 
                     // FIXME, dirty fix because the maximum sweep is 360 degrees
                     if (nodeStart + nodeSweep > 360) {
@@ -552,7 +569,7 @@ public class TreeView extends View implements TreeAdapter.TreeNodeChangeListener
                 }
 
                 if (node.getChildren().size() > 0) {
-                    updateDrawableTreeNodes(node.getChildren(), nodeStart, nodeSweep);
+                    updateDrawableTreeNodes(node.getChildren(), nodeStart, nodeSweep, node.getWeight());
                 }
                 nodeStart += nodeSweep;
             } else {

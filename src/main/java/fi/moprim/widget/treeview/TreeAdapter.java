@@ -25,6 +25,7 @@ public class TreeAdapter {
 
     private final ArrayList<TreeNode> rootNodes;
     private int depth;
+    private int minimumDepth = 1;
     private ArrayList<TreeNodeChangeListener> listeners;
 
     public TreeAdapter() {
@@ -55,7 +56,7 @@ public class TreeAdapter {
     }
 
     public int getDepth() {
-        return depth;
+        return Math.max(depth, minimumDepth);
     }
 
     public TreeNode addRootNode(String label, double weight, int colorResId, int iconResId) {
@@ -144,6 +145,10 @@ public class TreeAdapter {
 
     public void resetWeights() {
         resetWeights(rootNodes);
+    }
+
+    public void setMinimumDepth(int depth) {
+        this.minimumDepth = depth;
     }
 
     public interface TreeNodeChangeListener {

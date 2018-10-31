@@ -40,6 +40,20 @@ class RadialDrawableTreeNode extends DrawableTreeNode {
         this.outerCircle = outerCircle;
     }
 
+//    static RadialDrawableTreeNode getInstance(Context context, TreeNode node, RectF innerCircle, RectF outerCircle,
+//                                              int backgroundColorResId, int iconResId, float iconSize) {
+//        Paint backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+//        backgroundPaint.setStyle(Paint.Style.FILL);
+//        backgroundPaint.setColor(ContextCompat.getColor(context, backgroundColorResId));
+//
+//        Bitmap iconBitmap = null;
+//        if (iconResId != -1) {
+//            iconBitmap = BitmapFactory.decodeResource(context.getResources(), iconResId);
+//        }
+//        return new RadialDrawableTreeNode(context, node, innerCircle, outerCircle,
+//                backgroundPaint, iconBitmap, iconSize);
+//    }
+
     static RadialDrawableTreeNode getInstance(Context context, TreeNode node, RectF innerCircle, RectF outerCircle,
                                               float start, float sweep,
                                               int backgroundColorResId, int iconResId, float iconSize, int colorIcon) {
@@ -51,12 +65,10 @@ class RadialDrawableTreeNode extends DrawableTreeNode {
             if (colorIcon != -1) {
 
                 Drawable icon = ContextCompat.getDrawable(context, iconResId);
-                if (icon != null) {
-                    icon.mutate(); // A mutable drawable is guaranteed to not share its state with any other drawable
-                    DrawableCompat.setTint(icon,
-                            ContextCompat.getColor(context, android.R.color.white));
-                    iconBitmap = DrawableTreeNode.drawableToBitmap(icon);
-                }
+                icon.mutate(); // A mutable drawable is guaranteed to not share its state with any other drawable
+                DrawableCompat.setTint(icon,
+                        ContextCompat.getColor(context, android.R.color.white));
+                iconBitmap = DrawableTreeNode.drawableToBitmap(icon);
             } else {
                 iconBitmap = BitmapFactory.decodeResource(context.getResources(), iconResId);
             }
