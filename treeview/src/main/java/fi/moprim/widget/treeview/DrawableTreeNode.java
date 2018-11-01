@@ -123,7 +123,6 @@ abstract class DrawableTreeNode extends View {
         return start;
     }
 
-    @Keep
     public void setStart(float start) {
         this.start = start;
     }
@@ -132,7 +131,6 @@ abstract class DrawableTreeNode extends View {
         return sweep;
     }
 
-    @Keep
     public void setSweep(float sweep) {
         this.sweep = sweep;
     }
