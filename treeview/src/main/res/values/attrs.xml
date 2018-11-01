@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="TreeView">
+        <attr name="radial_view" format="boolean" />
+        <attr name="animate" format="boolean" />
+        <attr name="inner_radius_weight" format="float" />
+        <attr name="layer_height" format="dimension" />
+        <attr name="skip_length" format="float" />
+        <attr name="color_icons" format="reference" />
+        <attr name="shadow" format="boolean" />
+        <attr name="shadow_offset" format="float" />
+        <attr name="shadow_color" format="reference" />
+    </declare-styleable>
+</resources>
